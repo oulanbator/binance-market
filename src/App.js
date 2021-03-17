@@ -1,5 +1,5 @@
 import * as React from 'react'
-import PriceTable from './components/PriceTable'
+import {PriceTable, GlobalPriceTable} from './components/PriceTable'
 import ChartBox from './components/Chart'
 import Settings from './components/Settings'
 import TitleBar from './components/TitleBar'
@@ -154,7 +154,7 @@ function App() {
         </div>
       </div>
       {/* TABLE ALL COINS */}
-      <PriceTable 
+      <GlobalPriceTable 
         title={"All Market"} 
         prices={prices} 
         prevTicker={prevTicker}
