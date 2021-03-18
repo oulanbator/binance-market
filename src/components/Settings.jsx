@@ -1,4 +1,5 @@
 import * as React from 'react'
+import './settings.css'
 
 const RadioButton = ({ name, checked }) => {
     return <div className="form-check">
@@ -25,28 +26,50 @@ const Settings = ({ settings, onSettingsChange, minDelay }) => {
     const handleChangeSymbol = (e) => {
         setSelectedSymbol(e.target.name)
     }
+    // return <div className="settingsBar">
+    //     <div className="barHeader">
+    //         <div>
+    //             <h2>Settings</h2>
+    //         </div>
+    //         <div className="currentValues">
+    //             <div>Current symbol filter : {settings.symbol}</div>
+    //             <div>Current refresh delay : {settings.delay / 1000} secs</div>
+    //         </div>
+    //     </div>
+    //     <form className="barItems">
+    //         <div className="form-group setSymbol" onChange={handleChangeSymbol}>
+    //             <label>Filter symbol pairs</label>
+    //             <RadioButton name="USDT" checked={selectedSymbol === "USDT"} />
+    //             <RadioButton name="BTC" checked={selectedSymbol === "BTC"} />
+    //         </div>
+    //         <div className="form-group setDelay">
+    //             <label htmlFor="refreshDelayInput" className="form-label">Refresh prices (min : {minDelay / 1000} secs)</label>
+    //             <input type="text" id="refreshDelayInput" className="form-control" value={delay} onChange={handleChangeDelay} />
+    //         </div>
+    //         <button className="btn btn-info setSubmit" onClick={handleSubmitClick}>Set</button>
+    //     </form>
+    // </div>
     return <div className="settingsBar">
-        <div className="barHeader">
-            <div>
-                <h2>Settings</h2>
-            </div>
-            <div className="currentValues">
-                <div>Current symbol filter : {settings.symbol}</div>
-                <div>Current refresh delay : {settings.delay / 1000} secs</div>
-            </div>
+        <div className="barTitle">
+            <h2>Settings</h2>
         </div>
-        <form className="barItems">
-            <div className="form-group setSymbol" onChange={handleChangeSymbol}>
-                <label>Filter symbol pairs</label>
-                <RadioButton name="USDT" checked={selectedSymbol === "USDT"} />
-                <RadioButton name="BTC" checked={selectedSymbol === "BTC"} />
-            </div>
-            <div className="form-group setDelay">
-                <label htmlFor="refreshDelayInput" className="form-label">Refresh prices (min : {minDelay / 1000} secs)</label>
-                <input type="text" id="refreshDelayInput" className="form-control" value={delay} onChange={handleChangeDelay} />
-            </div>
-            <button className="btn btn-info setSubmit" onClick={handleSubmitClick}>Set</button>
-        </form>
+        <div className="currentValues">
+            <div>Current symbol filter : {settings.symbol}</div>
+            <div>Current refresh delay : {settings.delay / 1000} secs</div>
+        </div>
+        <div className="form-group setSymbol" onChange={handleChangeSymbol}>
+            <label className="setSymbolLabel">Filter symbol pairs</label>
+            <RadioButton name="USDT" checked={selectedSymbol === "USDT"} />
+            <RadioButton name="BTC" checked={selectedSymbol === "BTC"} />
+        </div>
+        <div className="form-group setDelay">
+            <label className="setDelayLabel">Refresh prices (min : {minDelay / 1000} secs)</label>
+            <input type="text" id="refreshDelayInput" className="form-control refreshDelayInput" value={delay} onChange={handleChangeDelay} />
+        </div>
+        <div className="submitButton">
+            <button className="btn btn-info btn-submit" onClick={handleSubmitClick}>Set</button>
+        </div>
+
     </div>
 }
 

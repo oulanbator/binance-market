@@ -1,9 +1,16 @@
 import * as React from 'react'
+import './pricetable.css'
 
-const Row = ({data, prevTicker, onSymbolClick}) => {
+const Row = ({data, prevTicker, onSymbolClick, favorites, onFavoriteClick}) => {
+    const symbolRef = React.useRef('')
+
     const handleSymbolClick = (e) => {
         e.preventDefault()
         onSymbolClick(e.target.text)
+    }
+    const handleFavoriteClick = (e) => {
+        e.preventDefault()
+        onFavoriteClick(symbolRef.current.children[0].innerText)
     }
     // get 24hour variation pour ticker 
     let variation24 = 0
@@ -12,28 +19,46 @@ const Row = ({data, prevTicker, onSymbolClick}) => {
             variation24 = key.priceChangePercent
         }
     })
+    // Get favorite status
+    let isFavorite = false
+    for (let i = 0 ; i < favorites.length ; i++) {
+        if (data.symbol === favorites[i]) {
+            isFavorite = true
+        }
+    }
+    const roundedPrice = Math.round(data.price * 100000) / 100000
     return <tr>
-        <td><a href="/#" onClick={handleSymbolClick}>{data.symbol}</a></td>
-        <td>{data.price}</td>
+        <td>
+            {isFavorite ?
+            <a href="/#" onClick={handleFavoriteClick}><i className="fas fa-star golden"></i></a> :
+            <a href="/#" onClick={handleFavoriteClick}><i className="far fa-star golden"></i></a>}
+        </td>
+        <td ref={symbolRef}><a href="/#" onClick={handleSymbolClick}>{data.symbol}</a></td>
+        <td>{roundedPrice}</td>
         {data.variation > 0 ? 
             <td className="text-success">{data.variation}</td> :
             <td className="text-danger">{data.variation}</td>
         }
-        <td>{Math.round(data.longVariation * 1000) / 1000}</td>
+        <td>{Math.round(data.longVariation * 100) / 100}</td>
         <td>{variation24}</td>
     </tr>
 }
 
-const Table = ({data, prevTicker, onSymbolClick}) => {
+const Table = ({data, prevTicker, onSymbolClick, favorites, onFavoriteClick}) => {
     // Build table rows
     let rows = []
     data.forEach((line, i) => {
-        rows.push(<Row key={i} data={line} prevTicker={prevTicker} onSymbolClick={onSymbolClick}/>)
+        rows.push(<Row key={i} 
+                    data={line} 
+                    prevTicker={prevTicker} 
+                    onSymbolClick={onSymbolClick} 
+                    favorites={favorites}
+                    onFavoriteClick={onFavoriteClick}/>)
     })
-    
     return <table id="priceTable" className="table">
         <thead>
             <tr>
+                <th></th>
                 <th>Symbol</th>
                 <th>Price</th>
                 <th>Last %</th>
@@ -47,19 +72,22 @@ const Table = ({data, prevTicker, onSymbolClick}) => {
     </table>
 }
 
-export const PriceTable = ({prices, title, prevTicker, onOpenChart}) => {
+export const PriceTable = ({prices, title, prevTicker, onOpenChart, favorites, onFavoriteChange}) => {
     return <React.Fragment>
         {title ? <h2>{title}</h2> : null}
-        <Table data={prices} prevTicker={prevTicker} onSymbolClick={onOpenChart}/>
+        <Table data={prices} 
+            prevTicker={prevTicker} 
+            onSymbolClick={onOpenChart} 
+            favorites={favorites}
+            onFavoriteClick={onFavoriteChange}/>
     </React.Fragment>
 }
-
 
 const SearchBar = ({onSubmit, onReload}) => {
     const [search, setSearch] = React.useState('')
     const handleSearch = (e) => {
         e.preventDefault()
-        setSearch(e.target.value)
+        setSearch((e.target.value).toUpperCase())
     }
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -68,24 +96,19 @@ const SearchBar = ({onSubmit, onReload}) => {
     }
     return <div className="input-group globalTableSearch">
         <input type="text" 
-            class="form-control" 
+            className="form-control" 
             placeholder="Search for a coin..." 
             aria-label="Search" 
             aria-describedby="searchButton"
             value={search}
             onChange={handleSearch} />
-            <button class="btn btn-outline-primary" type="button" id="searchButton" onClick={handleSubmit}>
-                <i class="fas fa-search"></i>
+            <button className="btn btn-outline-primary" type="button" id="searchButton" onClick={handleSubmit}>
+                <i className="fas fa-search"></i>
             </button>
-            <button class="btn btn-outline-success" type="button" id="searchButton" onClick={onReload}>
-                <i class="fas fa-redo"></i>
-            </button>
-        {/* <label htmlFor="searchInput" className="form-label">Search Coin</label>
-        <input type="text" className="form-control" id="searchInput" value={search} onChange={handleSearch}/> */}
     </div>
 }
-export const GlobalPriceTable = ({prices, title, prevTicker, onOpenChart}) => {
-    const [filteredPrices, setFilteredPrices] = React.useState(prices)
+export const GlobalPriceTable = ({prices, title, prevTicker, onOpenChart, favorites, onFavoriteChange}) => {
+    const [filteredPrices, setFilteredPrices] = React.useState([])
     const handleFilterCoins = (search) => {
         const result = [...prices].filter(function(line) {
             if (line.symbol.search(search) > -1) {
@@ -96,15 +119,14 @@ export const GlobalPriceTable = ({prices, title, prevTicker, onOpenChart}) => {
         })
         setFilteredPrices(result)
     }
-    const handleReload = () => {
-        setFilteredPrices(prices)
-    }
     return <React.Fragment>
-        <h1>{title}</h1>
-        <SearchBar onSubmit={handleFilterCoins} onReload={handleReload}/>
+        <h2 className="AllMarketTable">{title}</h2>
+        <SearchBar onSubmit={handleFilterCoins}/>
         <PriceTable 
             prices={filteredPrices} 
             prevTicker={prevTicker}
-            onOpenChart={onOpenChart}/>
+            onOpenChart={onOpenChart}
+            favorites={favorites}
+            onFavoriteChange={onFavoriteChange}/>
     </React.Fragment>
 }

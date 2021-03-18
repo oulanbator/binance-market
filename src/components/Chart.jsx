@@ -7,11 +7,10 @@ const Chart = ({data, symbol, interval}) => {
     // On mount, setup Chart
     React.useEffect(() => {
         // Set chart options
-        const LightweightCharts = window.LightweightCharts
-        // const chart = LightweightCharts.createChart(document.querySelector('#Chart'), {
+        const LightweightCharts = window.LightweightCharts        
         const chart = LightweightCharts.createChart(chartDiv.current, {
-            width: 800,
-            height: 400,
+            width: chartDiv.current.offsetWidth,
+            height: chartDiv.current.offsetHeight,
             layout: {
                 backgroundColor: '#FFF',
                 textColor: '#000',

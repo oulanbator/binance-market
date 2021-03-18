@@ -13,6 +13,10 @@
     justify-content: center;
     color: white;
 }
+#Chart{
+    width:80%;
+    height:80%;
+}
 #chartCloser{
     position: absolute;
     top: 30px;
@@ -21,13 +25,30 @@
     font-size: 2em;
 }
 #chartTitle{
-    width: 800px;
+    width: 80%;
     padding: 10px;
     color: rgb(255, 208, 0);
     background-color: rgba(0, 0, 0, 0.8);
 }
 #chartTimeframe{
-    width: 800px;
+    width: 80%;
     padding: 10px;
     background-color: rgba(0, 0, 0, 0.8);
+}
+
+@media screen and (max-width: 600px) {
+    #Chart{
+        width:90%;
+        height:80%;
+    }
+    #chartTitle{
+        width: 90%;
+    }
+    #chartTimeframe{
+        width: 90%;
+    }
+    #chartCloser{
+        top:5px;
+        right:5px;
+    }
 }

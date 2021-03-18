@@ -10,7 +10,6 @@ const TitleBar = ({start}) => {
     }, [])
     React.useEffect(() => {
       const timeSpend = Date.now() - start
-      console.log(timeSpend)
       // if less than 1 minute
       if ((timeSpend / 1000) < 60) {
         const timeString = Math.round(timeSpend / 1000) + " s"

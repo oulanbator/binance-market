@@ -1,0 +1,18 @@
+.championsTable{
+    border-right: solid thin black;
+}
+.filteredTables{
+    margin-top: 30px;
+}
+.AllMarketTable{
+    margin-top: 30px;
+}
+
+@media screen and (max-width: 600px) {
+    .table{
+        font-size: smaller;
+    }
+    .championsTable{
+        border-right: none;
+    }
+}

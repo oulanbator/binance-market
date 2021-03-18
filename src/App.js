@@ -17,6 +17,8 @@ function App() {
   const [prevTicker, setPrevTicker] = React.useState([])
   const [bestCoins, setBestCoins] = React.useState([])
   const [worstCoins, setWorstCoins] = React.useState([])
+  const [favorites, setFavorites] = React.useState([])
+  const [favCoin, setFavCoin] = React.useState([])
   const [startTime, setStartTime] = React.useState(0)
   const [showChart, setShowChart] = React.useState(false)
   const [chartSymbol, setChartSymbol] = React.useState("")
@@ -70,8 +72,16 @@ function App() {
       });
       // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reload]);
-  // On API fetch (prices change), update best and worst coins
+  // On API fetch (prices change), update favorites and best and worst coins
   React.useEffect(() => {
+    const favoriteCoins = [...prices].filter(function(line) {
+      for (let i = 0 ; i < favCoin.length ; i++) {
+        if (line.symbol === favCoin[i]) {
+          return true
+        }
+      }
+      return false
+    })
     const bestCoinsList = [...prices].filter(function(line) {
       if (line.symbol.endsWith(symbolFilter))  {
         if (!line.symbol.endsWith('UP' + symbolFilter)) {
@@ -98,10 +108,11 @@ function App() {
     worstCoinsList.sort((oneLine, anotherLine) => (
       oneLine.longVariation > anotherLine.longVariation) ? 1 : -1
     )
+    setFavorites(favoriteCoins)
     setBestCoins(bestCoinsList.slice(0, 15))
     setWorstCoins(worstCoinsList.slice(0, 15))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [prices])
+  }, [prices, favCoin])
 
   // Handlers
   const handleSettingsChange = (settings) => {
@@ -117,6 +128,21 @@ function App() {
   }
   const handleHideChart = () => {
     setShowChart(false)
+  }
+  const handleFavoriteChange = (symbol) => {
+    // if symbol in favorites, delete it
+    for (let i = 0; i < favCoin.length; i++) {
+      if (favCoin[i] === symbol) {
+        let newFavCoin = [...favCoin]
+        newFavCoin.splice(i, 1)
+        setFavCoin(newFavCoin)
+        return
+      }
+    }
+    // if not, push it
+    let newFavCoin = [...favCoin]
+    newFavCoin.push(symbol)
+    setFavCoin(newFavCoin)
   }
 
   // Get settings from states, to send to settings component (nul ?)
@@ -143,14 +169,36 @@ function App() {
             title={"Champions"} 
             prices={bestCoins} 
             prevTicker={prevTicker}
-            onOpenChart={handleShowChart}/>
+            onOpenChart={handleShowChart}
+            favorites={favCoin}
+            onFavoriteChange={handleFavoriteChange}/>
         </div>
         <div className="col-sm-6">
           <PriceTable 
             title={"Loosers"} 
             prices={worstCoins} 
             prevTicker={prevTicker}
-            onOpenChart={handleShowChart}/>
+            onOpenChart={handleShowChart}
+            favorites={favCoin}
+            onFavoriteChange={handleFavoriteChange}/>
+        </div>
+      </div>
+      <div className="row align-items-start filteredTables">
+        <div className="col-sm-6 championsTable">
+          <PriceTable 
+            title={"Favorites"} 
+            prices={favorites} 
+            prevTicker={prevTicker}
+            onOpenChart={handleShowChart}
+            favorites={favCoin}
+            onFavoriteChange={handleFavoriteChange}/>
+        </div>
+        <div className="col-sm-6">
+          {/* <PriceTable 
+            title={"Steady Coins"} 
+            prices={worstCoins} 
+            prevTicker={prevTicker}
+            onOpenChart={handleShowChart}/> */}
         </div>
       </div>
       {/* TABLE ALL COINS */}
@@ -158,7 +206,9 @@ function App() {
         title={"All Market"} 
         prices={prices} 
         prevTicker={prevTicker}
-        onOpenChart={handleShowChart}/>
+        onOpenChart={handleShowChart}
+        favorites={favCoin}
+        onFavoriteChange={handleFavoriteChange}/>
     </div>
   </React.Fragment>
 }
