@@ -1,5 +1,8 @@
-.championsTable{
+.leftTable{
     border-right: solid thin black;
+}
+.emptyTable{
+    padding-bottom: 30px;
 }
 .filteredTables{
     margin-top: 30px;
@@ -12,7 +15,7 @@
     .table{
         font-size: smaller;
     }
-    .championsTable{
+    .leftTable{
         border-right: none;
     }
 }

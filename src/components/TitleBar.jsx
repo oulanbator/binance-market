@@ -32,9 +32,9 @@ const TitleBar = ({start}) => {
         const timeString = hours + "h " + minutes + "m " + seconds + "s"
         setTime(timeString)
       }
-    }, [reload])
+    }, [reload, start])
     
-    return <div className="titleBar golden">
+    return <div className="titleBar text-warning">
       <div>
         <h1>Binance Market</h1>
       </div>

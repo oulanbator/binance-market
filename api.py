@@ -1,12 +1,15 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, jsonify
 from binance.client import Client
 from binance.enums import *
-import config
+import os
 
 app = Flask(__name__, static_folder='build', static_url_path='/')
 app.config['SECRET_KEY'] = "azeqqzdsrgsfqzdsefsfsdqzgxgsefsdwxc"
 
-client = Client(config.API_KEY, config.API_SECRET)
+API_KEY = os.getenv('API_KEY')
+API_SECRET = os.environ.get('API_SECRET')
+
+client = Client(API_KEY, API_SECRET)
 
 @app.route('/')
 def index():

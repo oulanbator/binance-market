@@ -7,6 +7,34 @@ import TitleBar from './components/TitleBar'
 const MINIMUM_DELAY = 3000
 const FILTER_SYMBOL = 'USDT'
 
+// const fetchPrices = (prices) => {
+//   fetch('https://api.binance.com/api/v3/ticker/price')
+//     .then(r => r.json())
+//     .then(data => {
+//       data.forEach((line, i) => {
+//         // At the first fetch (prices are still = [])
+//         if (prices.length === 0) {
+//           line.variation = 0
+//           line.cumulativeVariation = 0
+//         // For all next fetchs
+//         } else {
+//           // save previous price before changing prices
+//           const previousPrice = prices[i].price
+//           // Get stock variation (new price - previous price)
+//           const stockVariation = data[i].price - previousPrice
+//           // Calculate percent variation
+//           const percentVariation = stockVariation * 100 / previousPrice
+//           // set short variation
+//           line.variation = Math.round(percentVariation * 1000) / 1000
+//           // Calculate end set cumulativeVariation
+//           const cumulVariation = prices[i].cumulativeVariation + line.variation
+//           line.cumulativeVariation = cumulVariation
+//         }
+//       })
+//       return data
+//     });
+// }
+
 function App() {
   const [loading, setLoading] = React.useState(true)
   const [reload, setReload] = React.useState(0)
@@ -17,6 +45,8 @@ function App() {
   const [prevTicker, setPrevTicker] = React.useState([])
   const [bestCoins, setBestCoins] = React.useState([])
   const [worstCoins, setWorstCoins] = React.useState([])
+  const [onfireCoins, setOnfireCoins] = React.useState([])
+  const [steadyCoins, setSteadyCoins] = React.useState([])
   const [favorites, setFavorites] = React.useState([])
   const [favCoin, setFavCoin] = React.useState([])
   const [startTime, setStartTime] = React.useState(0)
@@ -29,7 +59,7 @@ function App() {
     setStartTime(Date.now())
     return () => clearInterval(prevTickerInterval)
   }, [])
-  // Create an interval to reload prices
+  // Create an interval for reloading prices
   React.useEffect(() => { 
     let interval = setInterval(() => setReload(c => c + 1), (refreshDelay))
     return () => clearInterval(interval)
@@ -39,6 +69,20 @@ function App() {
     fetch('https://api.binance.com/api/v3/ticker/24hr')
       .then(r => r.json())
       .then(data => {
+        // let reloadPrices = [...prices]
+        // // loop on response data
+        // for (let i = 0 ; i < data.length ; i++) {
+        //   // loop on real-time prices
+        //   for (let j = 0 ; j < reloadPrices.length ; j++) {
+        //     // compare symbols
+        //     if (data[i].symbol === reloadPrices[j].symbol) {
+        //       // reloadPrices[j].prevTickerVariation = 0
+        //       reloadPrices[j].prevTickerVariation = parseFloat(data[i].priceChangePercent)
+        //       // console.log(reloadPrices[j])
+        //     }
+        //   }
+        // }
+        // setPrices(reloadPrices)
         setPrevTicker(data)
         setLoading(false)
     })
@@ -52,7 +96,8 @@ function App() {
           // At the first fetch (prices are still = [])
           if (prices.length === 0) {
             line.variation = 0
-            line.longVariation = 0
+            line.cumulativeVariation = 0
+            line.absoluteVariation = 0
           // For all next fetchs
           } else {
             // save previous price before changing prices
@@ -63,25 +108,21 @@ function App() {
             const percentVariation = stockVariation * 100 / previousPrice
             // set short variation
             line.variation = Math.round(percentVariation * 1000) / 1000
-            // Calculate end set longVariation
-            const cumulVariation = prices[i].longVariation + line.variation
-            line.longVariation = cumulVariation
+            // Calculate cumulativeVariation and absoluteVariation
+            const cumulVariation = prices[i].cumulativeVariation + line.variation
+            const absVariation = prices[i].absoluteVariation + Math.abs(line.variation)
+            // Set them to the line
+            line.cumulativeVariation = cumulVariation
+            line.absoluteVariation = absVariation
           }
         })
         setPrices(data)
       });
       // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reload]);
-  // On API fetch (prices change), update favorites and best and worst coins
+  // On API fetch (prices change), update favorites, steady and best/worst coins
   React.useEffect(() => {
-    const favoriteCoins = [...prices].filter(function(line) {
-      for (let i = 0 ; i < favCoin.length ; i++) {
-        if (line.symbol === favCoin[i]) {
-          return true
-        }
-      }
-      return false
-    })
+    // FILTER LISTS (from fetched prices)
     const bestCoinsList = [...prices].filter(function(line) {
       if (line.symbol.endsWith(symbolFilter))  {
         if (!line.symbol.endsWith('UP' + symbolFilter)) {
@@ -102,19 +143,75 @@ function App() {
       }
       return false
     })
+    const onfireCoinsList = [...prices].filter(function(line) {
+      if (line.symbol.endsWith(symbolFilter))  {
+        if (!line.symbol.endsWith('UP' + symbolFilter)) {
+          if (!line.symbol.endsWith('DOWN' + symbolFilter)) {
+            if (!line.symbol.endsWith('BTCST' + symbolFilter)) {
+              // for (let i = 0 ; i < prevTicker.length ; i++) {
+              //   if (prevTicker[i].symbol === line.symbol) {
+              //     const percentChange = parseFloat(prevTicker[i].priceChangePercent)
+              //     if (percentChange !== 0) {
+              //       return true
+              //     }
+              //   }
+              // }
+              return true
+            }
+          }
+        }
+      }
+      return false
+    })
+    const steadyCoinsList = [...prices].filter(function(line) {
+      if (line.symbol.endsWith(symbolFilter))  {
+        if (!line.symbol.endsWith('UP' + symbolFilter)) {
+          if (!line.symbol.endsWith('DOWN' + symbolFilter)) {
+            if (!line.symbol.endsWith('BTCST' + symbolFilter)) {
+              for (let i = 0 ; i < prevTicker.length ; i++) {
+                if (prevTicker[i].symbol === line.symbol) {
+                  const percentChange = parseFloat(prevTicker[i].priceChangePercent)
+                  if (percentChange !== 0) {
+                    return true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      return false
+    })
+    const favoriteCoins = [...prices].filter(function(line) {
+      for (let i = 0 ; i < favCoin.length ; i++) {
+        if (line.symbol === favCoin[i]) {
+          return true
+        }
+      }
+      return false
+    })
+    // SORT LISTS
     bestCoinsList.sort((oneLine, anotherLine) => (
-      oneLine.longVariation < anotherLine.longVariation) ? 1 : -1
+      oneLine.cumulativeVariation < anotherLine.cumulativeVariation) ? 1 : -1
     )
     worstCoinsList.sort((oneLine, anotherLine) => (
-      oneLine.longVariation > anotherLine.longVariation) ? 1 : -1
+      oneLine.cumulativeVariation > anotherLine.cumulativeVariation) ? 1 : -1
     )
-    setFavorites(favoriteCoins)
+    onfireCoinsList.sort((oneLine, anotherLine) => (
+      oneLine.absoluteVariation < anotherLine.absoluteVariation) ? 1 : -1
+    )
+    steadyCoinsList.sort((oneLine, anotherLine) => (
+      oneLine.absoluteVariation > anotherLine.absoluteVariation) ? 1 : -1
+    )
+    // UPDATE STATES
     setBestCoins(bestCoinsList.slice(0, 15))
     setWorstCoins(worstCoinsList.slice(0, 15))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [prices, favCoin])
+    setOnfireCoins(onfireCoinsList.slice(0, 15))
+    setSteadyCoins(steadyCoinsList.slice(0, 15))
+    setFavorites(favoriteCoins)
+  }, [prices, prevTicker, favCoin, symbolFilter])
 
-  // Handlers
+  // HANDLERS
   const handleSettingsChange = (settings) => {
     // Only refresh delay if > than minimal delay
     if (settings.delay >= MINIMUM_DELAY / 1000) {
@@ -164,14 +261,15 @@ function App() {
     {/* TABLES Champions/Loosers*/}
     <div className="container">
       <div className="row align-items-start filteredTables">
-        <div className="col-sm-6 championsTable">
+        <div className="col-sm-6 leftTable">
           <PriceTable 
             title={"Champions"} 
-            prices={bestCoins} 
+            prices={bestCoins}
             prevTicker={prevTicker}
             onOpenChart={handleShowChart}
             favorites={favCoin}
-            onFavoriteChange={handleFavoriteChange}/>
+            onFavoriteChange={handleFavoriteChange}
+            icon={("chart-line text-success")}/>
         </div>
         <div className="col-sm-6">
           <PriceTable 
@@ -180,27 +278,43 @@ function App() {
             prevTicker={prevTicker}
             onOpenChart={handleShowChart}
             favorites={favCoin}
-            onFavoriteChange={handleFavoriteChange}/>
+            onFavoriteChange={handleFavoriteChange}
+            icon={("chart-line text-danger")}/>
         </div>
       </div>
       <div className="row align-items-start filteredTables">
-        <div className="col-sm-6 championsTable">
-          <PriceTable 
-            title={"Favorites"} 
-            prices={favorites} 
+        <div className="col-sm-6 leftTable">
+        <PriceTable 
+            title={"Coins on Fire"} 
+            prices={onfireCoins} 
+            variationType={"absolute"}
             prevTicker={prevTicker}
             onOpenChart={handleShowChart}
             favorites={favCoin}
-            onFavoriteChange={handleFavoriteChange}/>
+            onFavoriteChange={handleFavoriteChange}
+            icon={("fire-alt text-warning")}/>
         </div>
         <div className="col-sm-6">
-          {/* <PriceTable 
+          <PriceTable 
             title={"Steady Coins"} 
-            prices={worstCoins} 
+            prices={steadyCoins} 
+            variationType={"absolute"}
             prevTicker={prevTicker}
-            onOpenChart={handleShowChart}/> */}
+            onOpenChart={handleShowChart}
+            favorites={favCoin}
+            onFavoriteChange={handleFavoriteChange}
+            icon={("snowflake text-primary")}/>
         </div>
       </div>
+      {/* FAVORITES */}
+      <PriceTable 
+          title={"Favorites"} 
+          prices={favorites} 
+          prevTicker={prevTicker}
+          onOpenChart={handleShowChart}
+          favorites={favCoin}
+          onFavoriteChange={handleFavoriteChange}
+          icon={("star text-warning")}/>
       {/* TABLE ALL COINS */}
       <GlobalPriceTable 
         title={"All Market"} 

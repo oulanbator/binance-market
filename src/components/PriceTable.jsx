@@ -1,7 +1,7 @@
 import * as React from 'react'
 import './pricetable.css'
 
-const Row = ({data, prevTicker, onSymbolClick, favorites, onFavoriteClick}) => {
+const Row = ({data, prevTicker, onSymbolClick, favorites, onFavoriteClick, variationType}) => {
     const symbolRef = React.useRef('')
 
     const handleSymbolClick = (e) => {
@@ -28,33 +28,44 @@ const Row = ({data, prevTicker, onSymbolClick, favorites, onFavoriteClick}) => {
     }
     const roundedPrice = Math.round(data.price * 100000) / 100000
     return <tr>
+        {/* Favorite icon */}
         <td>
             {isFavorite ?
-            <a href="/#" onClick={handleFavoriteClick}><i className="fas fa-star golden"></i></a> :
-            <a href="/#" onClick={handleFavoriteClick}><i className="far fa-star golden"></i></a>}
+            <a href="/#" onClick={handleFavoriteClick}><i className="fas fa-star text-warning"></i></a> :
+            <a href="/#" onClick={handleFavoriteClick}><i className="far fa-star text-warning"></i></a>}
         </td>
+        {/* Symbol */}
         <td ref={symbolRef}><a href="/#" onClick={handleSymbolClick}>{data.symbol}</a></td>
+        {/* Price */}
         <td>{roundedPrice}</td>
+        {/* Instant Variation */}
         {data.variation > 0 ? 
             <td className="text-success">{data.variation}</td> :
             <td className="text-danger">{data.variation}</td>
         }
-        <td>{Math.round(data.longVariation * 100) / 100}</td>
+        {/* App lifetime Variation */}
+        {variationType === "cumulative" ? <td>{Math.round(data.cumulativeVariation * 100) / 100}</td> : null}
+        {variationType === "absolute" ? <td>{Math.round(data.absoluteVariation * 100) / 100}</td> : null}
+        {/* 24 hours variation */}
         <td>{variation24}</td>
     </tr>
 }
 
-const Table = ({data, prevTicker, onSymbolClick, favorites, onFavoriteClick}) => {
+const Table = ({data, prevTicker, onSymbolClick, favorites, onFavoriteClick, variationType}) => {
     // Build table rows
     let rows = []
     data.forEach((line, i) => {
         rows.push(<Row key={i} 
-                    data={line} 
+                    data={line}
+                    variationType={variationType} 
                     prevTicker={prevTicker} 
                     onSymbolClick={onSymbolClick} 
                     favorites={favorites}
                     onFavoriteClick={onFavoriteClick}/>)
     })
+    if (data.length === 0) {
+        return <div className="emptyTable"></div>
+    }
     return <table id="priceTable" className="table">
         <thead>
             <tr>
@@ -62,7 +73,10 @@ const Table = ({data, prevTicker, onSymbolClick, favorites, onFavoriteClick}) =>
                 <th>Symbol</th>
                 <th>Price</th>
                 <th>Last %</th>
-                <th><span className="golden">Cumul %</span></th>
+                {variationType === "cumulative" ?
+                    <th><span className="text-warning">Cumul. %</span></th> :
+                    <th><span className="text-warning">Absol. %</span></th>
+                }
                 <th>24h %</th>
             </tr>
         </thead>
@@ -72,14 +86,19 @@ const Table = ({data, prevTicker, onSymbolClick, favorites, onFavoriteClick}) =>
     </table>
 }
 
-export const PriceTable = ({prices, title, prevTicker, onOpenChart, favorites, onFavoriteChange}) => {
+export const PriceTable = ({prices, title, prevTicker, onOpenChart, favorites, onFavoriteChange, variationType="cumulative", icon=null}) => {
+    const iconString = "fas fa-" + icon
     return <React.Fragment>
-        {title ? <h2>{title}</h2> : null}
-        <Table data={prices} 
+        {title && icon ? <h2>{title} <i className={iconString}></i></h2> : 
+            title ? <h2>{title}</h2> : null
+        }
+        <Table data={prices}
+            variationType={variationType} 
             prevTicker={prevTicker} 
             onSymbolClick={onOpenChart} 
             favorites={favorites}
-            onFavoriteClick={onFavoriteChange}/>
+            onFavoriteClick={onFavoriteChange}
+            icon={icon}/>
     </React.Fragment>
 }
 
@@ -107,7 +126,7 @@ const SearchBar = ({onSubmit, onReload}) => {
             </button>
     </div>
 }
-export const GlobalPriceTable = ({prices, title, prevTicker, onOpenChart, favorites, onFavoriteChange}) => {
+export const GlobalPriceTable = ({prices, title, prevTicker, onOpenChart, favorites, onFavoriteChange, variationType="cumulative", icon=null}) => {
     const [filteredPrices, setFilteredPrices] = React.useState([])
     const handleFilterCoins = (search) => {
         const result = [...prices].filter(function(line) {
@@ -124,9 +143,11 @@ export const GlobalPriceTable = ({prices, title, prevTicker, onOpenChart, favori
         <SearchBar onSubmit={handleFilterCoins}/>
         <PriceTable 
             prices={filteredPrices} 
+            variationType={variationType} 
             prevTicker={prevTicker}
             onOpenChart={onOpenChart}
             favorites={favorites}
-            onFavoriteChange={onFavoriteChange}/>
+            onFavoriteChange={onFavoriteChange}
+            icon={icon}/>
     </React.Fragment>
 }
