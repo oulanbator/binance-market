@@ -1,0 +1,57 @@
+.titleBar{
+    display:flex;
+    align-items: center;
+    text-align: center;
+    justify-content: space-between;
+    background-color: rgba(0, 0, 0, 0.9);
+    padding-top: 10px;
+    padding-left: 30px;
+    height: 70px;
+}
+.titleBar .timeSpendDiv{
+    margin-right: 30px;
+    display: flex;
+}
+.resetButton{
+    margin-left: 10px;
+}
+
+/* @media screen and (max-width: 900px) {
+    .titleBar{
+        display:flex;
+        flex-direction: column;
+        padding-bottom: 10px;
+        padding-left: 0px;
+        height: 115px;
+    }
+    .titleBar div h1{
+        margin-bottom: 0px;
+    }
+    .titleBar .timeSpendDiv{
+        margin-right: 0px;
+        flex-direction: column;
+    }
+    .titleBar .timeSpendDiv h3{
+        font-size: small;
+    }
+} */
+
+@media screen and (max-width: 800px) {
+    .titleBar{
+        display:flex;
+        flex-direction: column;
+        padding-bottom: 10px;
+        padding-left: 0px;
+        height: 115px;
+    }
+    .titleBar div h1{
+        margin-bottom: 0px;
+    }
+    .titleBar .timeSpendDiv{
+        margin-right: 0px;
+        flex-direction: column;
+    }
+    .titleBar .timeSpendDiv h3{
+        font-size: small;
+    }
+}

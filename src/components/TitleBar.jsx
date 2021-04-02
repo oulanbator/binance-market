@@ -1,6 +1,17 @@
 import * as React from 'react'
+import './titlebar.css'
 
-const TitleBar = ({start}) => {
+const ResetButton = ({onReset}) => {
+  const handleClick = (e) => {
+    e.preventDefault()
+    onReset()
+  }
+  return <button className="btn btn-outline-info resetButton" onClick={handleClick}>
+      <i className="fas fa-redo text-warning"></i> Reload page
+    </button>
+}
+
+const TitleBar = ({start, onReset}) => {
     const [reload, setReload] = React.useState(0)
     const [time, setTime] = React.useState('')
     // Create an interval to reload prices
@@ -39,7 +50,7 @@ const TitleBar = ({start}) => {
         <h1>Binance Market</h1>
       </div>
       <div className="timeSpendDiv">
-        <h3>Time spend : {time}</h3>
+        <h3>Time spend : {time}</h3> <ResetButton onReset={onReset}/>
       </div>
     </div>
   }

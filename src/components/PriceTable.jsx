@@ -1,7 +1,7 @@
 import * as React from 'react'
 import './pricetable.css'
 
-const Row = ({data, prevTicker, onSymbolClick, favorites, onFavoriteClick, variationType}) => {
+const Row = ({data, prevTicker, onSymbolClick, favorites, onFavoriteClick}) => {
     const symbolRef = React.useRef('')
 
     const handleSymbolClick = (e) => {
@@ -36,17 +36,13 @@ const Row = ({data, prevTicker, onSymbolClick, favorites, onFavoriteClick, varia
         </td>
         {/* Symbol */}
         <td ref={symbolRef}><a href="/#" onClick={handleSymbolClick}>{data.symbol}</a></td>
-        {/* Price */}
+        {/* Instant Price */}
         <td>{roundedPrice}</td>
-        {/* Instant Variation */}
-        {data.variation > 0 ? 
-            <td className="text-success">{data.variation}</td> :
-            <td className="text-danger">{data.variation}</td>
-        }
-        {/* App lifetime Variation */}
-        {variationType === "cumulative" ? <td>{Math.round(data.cumulativeVariation * 100) / 100}</td> : null}
-        {variationType === "absolute" ? <td>{Math.round(data.absoluteVariation * 100) / 100}</td> : null}
-        {/* 24 hours variation */}
+        {/* App lifetime/reset cumulative variation */}
+        <td>{Math.round(data.cumulativeVariation * 100) / 100}</td>
+        {/* App lifetime/reset absolute variation */}
+        <td>{Math.round(data.absoluteVariation * 100) / 100}</td>
+        {/* last 24h variation */}
         <td>{variation24}</td>
     </tr>
 }
@@ -72,10 +68,14 @@ const Table = ({data, prevTicker, onSymbolClick, favorites, onFavoriteClick, var
                 <th></th>
                 <th>Symbol</th>
                 <th>Price</th>
-                <th>Last %</th>
+                {/* <th>Last %</th> */}
                 {variationType === "cumulative" ?
                     <th><span className="text-warning">Cumul. %</span></th> :
-                    <th><span className="text-warning">Absol. %</span></th>
+                    <th><span>Cumul. %</span></th>
+                }
+                {variationType === "absolute" ?
+                    <th><span className="text-warning">Absol. %</span></th> :
+                    <th><span>Absol. %</span></th>
                 }
                 <th>24h %</th>
             </tr>
@@ -88,7 +88,7 @@ const Table = ({data, prevTicker, onSymbolClick, favorites, onFavoriteClick, var
 
 export const PriceTable = ({prices, title, prevTicker, onOpenChart, favorites, onFavoriteChange, variationType="cumulative", icon=null}) => {
     const iconString = "fas fa-" + icon
-    return <React.Fragment>
+    return <div className="PriceTable">
         {title && icon ? <h2>{title} <i className={iconString}></i></h2> : 
             title ? <h2>{title}</h2> : null
         }
@@ -99,7 +99,7 @@ export const PriceTable = ({prices, title, prevTicker, onOpenChart, favorites, o
             favorites={favorites}
             onFavoriteClick={onFavoriteChange}
             icon={icon}/>
-    </React.Fragment>
+    </div>
 }
 
 const SearchBar = ({onSubmit, onReload}) => {

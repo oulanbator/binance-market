@@ -1,40 +1,20 @@
-.titleBar{
-    display:flex;
-    align-items: center;
-    text-align: center;
-    justify-content: space-between;
-    background-color: rgba(0, 0, 0, 0.9);
-    padding-top: 10px;
-    padding-left: 30px;
-    height: 70px;
-}
-.titleBar .timeSpendDiv{
-    margin-right: 30px;
-}
-
-.golden{
-    color: rgb(255, 208, 0);
-}
 #initialLoading{
     margin-top: 150px;
     text-align: center;
 }
 
-@media screen and (max-width: 600px) {
-    .titleBar{
-        display:flex;
-        flex-direction: column;
-        padding-bottom: 10px;
-        padding-left: 0px;
-        height: 90px;
-    }
-    .titleBar div h1{
-        margin-bottom: 0px;
-    }
-    .titleBar .timeSpendDiv{
-        margin-right: 0px;
-    }
-    .titleBar .timeSpendDiv h3{
-        font-size: small;
+.PriceTablesGrid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns : 1fr 1fr;
+    grid-auto-rows: 710px;
+    grid-gap: 30px;
+    margin: auto;
+    align-items: top;
+}
+
+@media screen and (max-width: 1000px) {
+    .PriceTablesGrid{
+        grid-template-columns : 1fr;
     }
 }
